@@ -31,7 +31,7 @@ public class Argon2 extends UnsaltedMethod {
         random.nextBytes(salt);
         byte[] hash = derive(password.toCharArray(), salt, ITERATIONS, MEMORY_KB, PARALLELISM, HASH_BYTES);
         Base64.Encoder enc = Base64.getEncoder().withoutPadding();
-        return "$argon2i$v=19$m=" + MEMORY_KB + ",t=" + ITERATIONS + ",p=" + PARALLELISM
+        return "$argon2id$v=19$m=" + MEMORY_KB + ",t=" + ITERATIONS + ",p=" + PARALLELISM
             + "$" + enc.encodeToString(salt)
             + "$" + enc.encodeToString(hash);
     }
@@ -39,8 +39,8 @@ public class Argon2 extends UnsaltedMethod {
     @Override
     public boolean comparePassword(String password, HashedPassword hashedPassword, String name) {
         String[] parts = hashedPassword.getHash().split("\\$");
-        // Expected: ["", "argon2i", "v=19", "m=65536,t=2,p=1", "<salt_b64>", "<hash_b64>"]
-        if (parts.length != 6 || !"argon2i".equals(parts[1])) {
+        // Expected: ["", "argon2id", "v=19", "m=65536,t=2,p=1", "<salt_b64>", "<hash_b64>"]
+        if (parts.length != 6 || !"argon2id".equals(parts[1])) {
             return false;
         }
         try {
@@ -55,7 +55,7 @@ public class Argon2 extends UnsaltedMethod {
     }
 
     private static byte[] derive(char[] password, byte[] salt, int iterations, int memoryKb, int parallelism, int hashLen) {
-        Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_i)
+        Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
             .withVersion(Argon2Parameters.ARGON2_VERSION_13)
             .withIterations(iterations)
             .withMemoryAsKB(memoryKb)
